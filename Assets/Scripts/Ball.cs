@@ -12,23 +12,21 @@ public class Ball : MonoBehaviour
 
     public UnityEvent onHitTarget;
     public UnityEvent onHitGoal;
-    public UnityEvent onDisappear;
+    public UnityEvent<Ball> onDisappear;
+    public UnityEvent<Ball> onAppear;
 
     public Rigidbody BallRigidbody => ballRigidbody;
 
-	int targetLayerIndex = LayerMask.NameToLayer("Target");
-	int goalLayerIndex = LayerMask.NameToLayer("Goal");
-
-	LayerMask targetLayer;
-	LayerMask goalLayer;
+	int targetLayerIndex;
+	int goalLayerIndex;
 
 	bool isShot;
 	float timer;
 
-	private void Start()
+	private void Awake()
 	{
-		targetLayer = 1 << targetLayerIndex;
-		goalLayer = 1 << goalLayerIndex;
+		targetLayerIndex = LayerMask.NameToLayer("Target");
+		goalLayerIndex = LayerMask.NameToLayer("Goal");
 	}
 
 	private void OnCollisionEnter(Collision collision)
@@ -38,7 +36,7 @@ public class Ball : MonoBehaviour
 			onHitTarget.Invoke();
 
 			// To prevent having duplicate collisions
-			ballCollider.excludeLayers += targetLayer;
+			Physics.IgnoreLayerCollision(gameObject.layer, targetLayerIndex, true);
 		}
 
 		if (collision.gameObject.tag == "Goal")
@@ -46,7 +44,7 @@ public class Ball : MonoBehaviour
 			onHitGoal.Invoke();
 
 			// To prevent having duplicate collisions
-			ballCollider.excludeLayers += goalLayer;
+			Physics.IgnoreLayerCollision(gameObject.layer, goalLayerIndex, true);
 		}
 	}
 
@@ -66,14 +64,32 @@ public class Ball : MonoBehaviour
 
 	private void OnFinishDisappear()
 	{
-		ballCollider.excludeLayers -= targetLayer;
-		ballCollider.excludeLayers -= goalLayer;
-		onDisappear.Invoke();
+		Physics.IgnoreLayerCollision(gameObject.layer, targetLayerIndex, false);
+		Physics.IgnoreLayerCollision(gameObject.layer, goalLayerIndex, false);
+
+		ballRigidbody.velocity = new Vector3(0, 0, 0);
+		ballRigidbody.angularVelocity = new Vector3(0, 0, 0);
+		gameObject.SetActive(false);
+		onDisappear.Invoke(this);
+	}
+
+	private void OnAppear()
+	{
+		ballRigidbody.useGravity = true;
+		onAppear.Invoke(this);
 	}
 
 	public void Shoot(Vector3 direction, float power)
 	{
-		ballRigidbody.AddForce(direction * power, ForceMode.Impulse);
+		ballRigidbody.AddForce(new Vector3(direction.x, direction.y, direction.y) * power, ForceMode.Impulse);
+		ballRigidbody.AddRelativeTorque(new Vector3(direction.x, direction.y, direction.y) * power, ForceMode.Impulse);
 		isShot = true;
+	}
+
+	public void Appear()
+	{
+		gameObject.SetActive(true);
+		ballRigidbody.useGravity = false;
+		transform.DOScale(new Vector3(0.5f, 0.5f, 0.5f), 0.5f).SetEase(Ease.InOutQuad).onComplete += OnAppear;
 	}
 }
