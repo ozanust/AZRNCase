@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PointsPerGoal: 10
   ExtraPointsPerTargetHit: 30
-  ShootSpeed: 10
+  ShootSpeed: 7
   GameDifficulty: 
   PlayerHealth: 3
   ShootingTime: 2

@@ -8,6 +8,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private UIController uiController;
     [SerializeField] private GameConfigSO gameConfig;
     [SerializeField] private GoalTarget goalTarget;
+    [SerializeField] private GoalPlane goalPlane;
 
     [SerializeField] private Transform ballPoolParent;
     [SerializeField] private Transform shootingPosition;
@@ -26,7 +27,8 @@ public class GameController : MonoBehaviour
     float nextShootTimer;
     float lastShootTimer;
 
-    Ball recentBall;
+    Ball activeBall;
+    GoalTarget activeTarget;
 
     private Vector2 startTouchPosition;
     private Vector2 endTouchPosition;
@@ -34,7 +36,6 @@ public class GameController : MonoBehaviour
 
     private void Start()
 	{
-        Input.simulateMouseWithTouches = true;
         InitializeBallPool();
         health = gameConfig.PlayerHealth;
 
@@ -45,8 +46,6 @@ public class GameController : MonoBehaviour
 
     void Update()
     {
-
-#if !UNITY_EDITOR
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
@@ -57,15 +56,16 @@ public class GameController : MonoBehaviour
                 startTouchPosition = touch.position;
                 isShootStarted = true;
             }
-            else if (isShootStarted && touch.phase == TouchPhase.Ended)
+            
+            if (isShootStarted && touch.phase == TouchPhase.Ended)
             {
                 Debug.Log("touch ended");
                 endTouchPosition = touch.position;
-                // Shoot if there is enough distance dragged with finger
+                // Shoot if there is enough distance dragged with mouse
                 if ((endTouchPosition - startTouchPosition).magnitude > 2)
                 {
                     swipeDirection = (endTouchPosition - startTouchPosition).normalized;
-                    ball.Shoot(swipeDirection, gameConfig.ShootSpeed);
+                    activeBall.Shoot(swipeDirection, gameConfig.ShootSpeed);
                     isShot = true;
                     health -= 1;
 
@@ -77,7 +77,6 @@ public class GameController : MonoBehaviour
                 isShootStarted = false;
             }
         }
-#endif
 
 #if UNITY_EDITOR
         Vector3 mousePosition = Input.mousePosition;
@@ -93,11 +92,9 @@ public class GameController : MonoBehaviour
         {
             Debug.Log("Mouse click ended");
             endTouchPosition = mousePosition;
-            // Shoot if there is enough distance dragged with mouse
-            if ((endTouchPosition - startTouchPosition).magnitude > 2)
+            if ((endTouchPosition - startTouchPosition).magnitude > 200)
             {
-                swipeDirection = (endTouchPosition - startTouchPosition).normalized;
-                recentBall.Shoot(swipeDirection, gameConfig.ShootSpeed);
+                ShootBall();
                 isShot = true;
                 health -= 1;
 
@@ -129,6 +126,7 @@ public class GameController : MonoBehaviour
                 Ball tempBall = GetBall();
                 tempBall.gameObject.transform.position = shootingPosition.position;
                 tempBall.Appear();
+                CreateRandomTarget();
                 nextShootTimer = 0;
                 isShot = false;
             }
@@ -177,7 +175,7 @@ public class GameController : MonoBehaviour
     private void OnBallAppear(Ball ball)
     {
         isPlayerMove = true;
-        recentBall = ball;
+        activeBall = ball;
         Debug.Log("player can make move");
     }
 
@@ -191,7 +189,7 @@ public class GameController : MonoBehaviour
 			}
 		}
 
-        // If all balls are in use, we increase pool in need
+        // If all balls are in use, we increase the pool in need
         return CreateNewBall();
     }
 
@@ -205,5 +203,35 @@ public class GameController : MonoBehaviour
         ballPool.Add(tempBall);
 
         return tempBall;
+    }
+
+    private void ShootBall()
+	{
+        Vector3 deltaVector = endTouchPosition - startTouchPosition;
+        swipeDirection = deltaVector.normalized;
+        Vector3 weightedDirection = new Vector3(swipeDirection.x * Mathf.Abs(deltaVector.x) * 3 / Screen.currentResolution.width, swipeDirection.y * Mathf.Abs(deltaVector.y) / Screen.currentResolution.height, swipeDirection.y * Mathf.Abs(deltaVector.y) / Screen.currentResolution.height);
+        activeBall.Shoot(weightedDirection, gameConfig.ShootSpeed);
+    }
+
+    private void CreateRandomTarget()
+    {
+        Vector3 randomTargetPosition = new Vector3(
+            Random.Range(goalPlane.TopLeft.x + goalTarget.Radius, goalPlane.TopRight.x - goalTarget.Radius),
+            Random.Range(goalPlane.TopLeft.y - goalTarget.Radius, goalPlane.BottomLeft.y + goalTarget.Radius),
+            goalPlane.TopRight.z);
+
+        if (activeTarget != null)
+        {
+            activeTarget.gameObject.transform.position = randomTargetPosition;
+            return;
+        }
+
+        activeTarget = Instantiate(
+            goalTarget,
+            new Vector3(
+            Random.Range(goalPlane.TopLeft.x + goalTarget.Radius, goalPlane.TopRight.x - goalTarget.Radius),
+            Random.Range(goalPlane.TopLeft.y - goalTarget.Radius, goalPlane.BottomLeft.y + goalTarget.Radius),
+            goalPlane.TopRight.z),
+            goalTarget.transform.rotation);
     }
 }

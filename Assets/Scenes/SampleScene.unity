@@ -155,7 +155,8 @@ MonoBehaviour:
   ball: {fileID: 951733493812220387, guid: 94756bddddd0832468bde3ba383884de, type: 3}
   uiController: {fileID: 1339831217}
   gameConfig: {fileID: 11400000, guid: 937b112235724854e9d2f5d0a1aa0a8b, type: 2}
-  goalTarget: {fileID: 0}
+  goalTarget: {fileID: 8582522840215232405, guid: 0b842458e81f01542a8b626d342de1fb, type: 3}
+  goalPlane: {fileID: 798251848}
   ballPoolParent: {fileID: 840443485}
   shootingPosition: {fileID: 290249015}
   secondsBetweenShoots: 4
@@ -187,7 +188,7 @@ GameObject:
   - component: {fileID: 122893246}
   - component: {fileID: 122893245}
   m_Layer: 0
-  m_Name: Cube (2)
+  m_Name: GoalSupport
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -416,8 +417,9 @@ GameObject:
   - component: {fileID: 798251845}
   - component: {fileID: 798251844}
   - component: {fileID: 798251847}
+  - component: {fileID: 798251848}
   m_Layer: 7
-  m_Name: Plane (1)
+  m_Name: GoalPlane
   m_TagString: Goal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -509,6 +511,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10, y: 2.2204466e-16, z: 10.000002}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &798251848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798251842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6b576b82de31024bb1a92ccb3434888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  planeCollider: {fileID: 798251847}
 --- !u!1 &840443484
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,7 +580,7 @@ Transform:
   m_GameObject: {fileID: 910555702}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -4.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -724,7 +739,7 @@ GameObject:
   - component: {fileID: 1341064371}
   - component: {fileID: 1341064370}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -830,7 +845,7 @@ GameObject:
   - component: {fileID: 1998949154}
   - component: {fileID: 1998949153}
   m_Layer: 0
-  m_Name: Cube (1)
+  m_Name: GoalSupport
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -935,7 +950,7 @@ GameObject:
   - component: {fileID: 2058011627}
   - component: {fileID: 2058011626}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: GoalSupport
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

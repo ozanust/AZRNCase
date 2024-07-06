@@ -4,15 +4,18 @@ using UnityEngine;
 
 public class GoalTarget : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	[SerializeField] private ParticleSystem explosionEffect;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+	// Assuming this is a cylinder
+	public float Radius => transform.localScale.x / 2f;
+
+	private void OnCollisionEnter(Collision collision)
+	{
+		if (collision.gameObject.tag == "Ball")
+		{
+			explosionEffect.gameObject.transform.SetParent(null);
+			explosionEffect.Play();
+			Destroy(this.gameObject);
+		}
+	}
 }
