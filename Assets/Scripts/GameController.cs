@@ -243,12 +243,6 @@ public class GameController : MonoBehaviour
 			return;
 		}
 
-		activeTarget = Instantiate(
-			goalTarget,
-			new Vector3(
-			Random.Range(goalPlane.TopLeft.x + goalTarget.Radius, goalPlane.TopRight.x - goalTarget.Radius),
-			Random.Range(goalPlane.TopLeft.y - goalTarget.Radius, goalPlane.BottomLeft.y + goalTarget.Radius),
-			goalPlane.TopRight.z),
-			goalTarget.transform.rotation);
+		activeTarget = Instantiate(goalTarget, randomTargetPosition, goalTarget.transform.rotation);
 	}
 }
