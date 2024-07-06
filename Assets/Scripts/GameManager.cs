@@ -6,7 +6,7 @@ using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private GameConfigSO gameConfigSO;
+	[SerializeField] private GameConfigSO gameConfigSO;
 
 	private void Start()
 	{

@@ -6,16 +6,16 @@ using UnityEngine.Events;
 
 public class Ball : MonoBehaviour
 {
-    [SerializeField] Rigidbody ballRigidbody;
-    [SerializeField] Collider ballCollider;
+	[SerializeField] Rigidbody ballRigidbody;
+	[SerializeField] Collider ballCollider;
 	[SerializeField] float disappearTimer;
 
-    public UnityEvent onHitTarget;
-    public UnityEvent onHitGoal;
-    public UnityEvent<Ball> onDisappear;
-    public UnityEvent<Ball> onAppear;
+	public UnityEvent onHitTarget;
+	public UnityEvent onHitGoal;
+	public UnityEvent<Ball> onDisappear;
+	public UnityEvent<Ball> onAppear;
 
-    public Rigidbody BallRigidbody => ballRigidbody;
+	public Rigidbody BallRigidbody => ballRigidbody;
 
 	int targetLayerIndex;
 	int goalLayerIndex;
