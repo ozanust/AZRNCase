@@ -63,7 +63,7 @@ public class GameController : MonoBehaviour
 		{
 			Touch touch = Input.GetTouch(0);
 
-			if (isPlayerMove && touch.phase == TouchPhase.Began)
+			if (health > 0 && isPlayerMove && touch.phase == TouchPhase.Began)
 			{
 				startTouchPosition = touch.position;
 				isShootStarted = true;
