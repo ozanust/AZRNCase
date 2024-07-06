@@ -10,14 +10,12 @@ public class GameManager : MonoBehaviour
 
 	private void Start()
 	{
-		GameConfig config = ConfigLoader.GetConfig();
+		Application.targetFrameRate = 60;
+		ConfigLoader.GetConfig(OnGameConfigLoaded);
+	}
 
-		if (config == null)
-		{
-			Debug.LogError("Config file not found!");
-			return;
-		}
-
+	private void OnGameConfigLoaded(GameConfig config)
+	{
 		gameConfigSO.GameConfig = config;
 		SceneManager.LoadScene(1);
 	}

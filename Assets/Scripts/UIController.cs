@@ -21,7 +21,6 @@ public class UIController : MonoBehaviour
 
 	public void UpdateScore(int newScore)
 	{
-		Debug.Log("new score: " + newScore);
 		scoreText.text = string.Format("{0}: {1}", "Score", newScore.ToString());
 		scoreTextOnGameOver.text = string.Format("{0}: {1}", "Score", newScore.ToString());
 	}

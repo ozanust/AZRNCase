@@ -73,7 +73,6 @@ public class GameController : MonoBehaviour
             if (isShootStarted && touch.phase == TouchPhase.Ended)
             {
                 endTouchPosition = touch.position;
-                // Shoot if there is enough distance dragged with mouse
                 if ((endTouchPosition - startTouchPosition).magnitude > 200)
                 {
                     ShootBall();
@@ -227,7 +226,7 @@ public class GameController : MonoBehaviour
         shootingTimer = 0;
         Vector3 deltaVector = endTouchPosition - startTouchPosition;
         swipeDirection = deltaVector.normalized;
-        Vector3 weightedDirection = new Vector3(swipeDirection.x * Mathf.Abs(deltaVector.x) * 5f / Screen.currentResolution.width, swipeDirection.y * Mathf.Abs(deltaVector.y / 1.5f) / Screen.currentResolution.height, swipeDirection.y * Mathf.Abs(deltaVector.y) * 1.9f / Screen.currentResolution.height);
+        Vector3 weightedDirection = new Vector3(swipeDirection.x * Mathf.Abs(deltaVector.x) / Screen.currentResolution.width, swipeDirection.y * Mathf.Abs(deltaVector.y) * 1.1f / Screen.currentResolution.height, swipeDirection.y * Mathf.Abs(deltaVector.y) * 2f / Screen.currentResolution.height);
         activeBall.Shoot(weightedDirection, gameConfig.ShootSpeed);
     }
 
