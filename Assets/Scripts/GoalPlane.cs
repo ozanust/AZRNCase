@@ -16,7 +16,7 @@ public class GoalPlane : MonoBehaviour
     public Vector3 BottomLeft => bottomLeft;
     public Vector3 BottomRight => bottomRight;
 
-    private void Start()
+    private void Awake()
 	{
         CalculateVertices();
     }
@@ -27,9 +27,9 @@ public class GoalPlane : MonoBehaviour
         Vector3 size = planeCollider.bounds.size;
 
         // Calculate the corners of the BoxCollider
-        topLeft = center + new Vector3(-size.x, size.y, size.z) * 0.5f;
-        topRight = center + new Vector3(size.x, size.y, size.z) * 0.5f;
-        bottomLeft = center + new Vector3(-size.x, -size.y, size.z) * 0.5f;
-        bottomRight = center + new Vector3(size.x, -size.y, size.z) * 0.5f;
+        topLeft = center + new Vector3(-size.x, size.y, -size.z) * 0.5f;
+        topRight = center + new Vector3(size.x, size.y, -size.z) * 0.5f;
+        bottomLeft = center + new Vector3(-size.x, -size.y, -size.z) * 0.5f;
+        bottomRight = center + new Vector3(size.x, -size.y, -size.z) * 0.5f;
     }
 }

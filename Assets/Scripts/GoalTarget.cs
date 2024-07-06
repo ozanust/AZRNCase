@@ -14,8 +14,9 @@ public class GoalTarget : MonoBehaviour
 		if (collision.gameObject.tag == "Ball")
 		{
 			explosionEffect.gameObject.transform.SetParent(null);
+			explosionEffect.gameObject.transform.localScale = new Vector3(1, 1, 1);
 			explosionEffect.Play();
-			Destroy(this.gameObject);
+			Destroy(this.gameObject, 0.1f);
 		}
 	}
 }

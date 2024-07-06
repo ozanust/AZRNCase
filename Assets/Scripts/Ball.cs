@@ -64,9 +64,6 @@ public class Ball : MonoBehaviour
 
 	private void OnFinishDisappear()
 	{
-		Physics.IgnoreLayerCollision(gameObject.layer, targetLayerIndex, false);
-		Physics.IgnoreLayerCollision(gameObject.layer, goalLayerIndex, false);
-
 		ballRigidbody.velocity = new Vector3(0, 0, 0);
 		ballRigidbody.angularVelocity = new Vector3(0, 0, 0);
 		gameObject.SetActive(false);
@@ -76,6 +73,8 @@ public class Ball : MonoBehaviour
 	private void OnAppear()
 	{
 		ballRigidbody.useGravity = true;
+		Physics.IgnoreLayerCollision(gameObject.layer, targetLayerIndex, false);
+		Physics.IgnoreLayerCollision(gameObject.layer, goalLayerIndex, false);
 		onAppear.Invoke(this);
 	}
 
