@@ -81,7 +81,7 @@ public class Ball : MonoBehaviour
 	public void Shoot(Vector3 direction, float power)
 	{
 		ballRigidbody.AddForce(direction * power, ForceMode.Impulse);
-		ballRigidbody.AddRelativeTorque(direction * power, ForceMode.Impulse);
+		ballRigidbody.AddTorque(direction * power, ForceMode.Impulse);
 		isShot = true;
 	}
 
