@@ -3,5 +3,10 @@
     "ExtraPointsPerTargetHit": 30,
     "ShootSpeed": 7,
     "PlayerHealth": 3,
-    "ShootingTime": 2
+    "ShootingTime": 2,
+    "ShootPowerCoefficients": {
+    "x": 2,
+    "y": 1.2,
+    "z": 2.8
+  }
 }

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 [System.Serializable]
 public class GameConfig
 {
@@ -6,4 +8,5 @@ public class GameConfig
 	public float ShootSpeed;
 	public int PlayerHealth;
 	public float ShootingTime;
+	public Vector3 ShootPowerCoefficients;
 }

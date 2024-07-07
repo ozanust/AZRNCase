@@ -105,6 +105,11 @@ public class GameController : MonoBehaviour
 						lastShotMade = true;
 					}
 				}
+				else
+				{
+					shootingTimer = 0;
+					isPlayerMove = true;
+				}
 				isShootStarted = false;
 			}
 		}
@@ -133,6 +138,12 @@ public class GameController : MonoBehaviour
 					lastShotMade = true;
 				}
 			}
+			else
+			{
+				shootingTimer = 0;
+				isPlayerMove = true;
+			}
+
 			isShootStarted = false;
 		}
 #endif
@@ -245,11 +256,11 @@ public class GameController : MonoBehaviour
 		Vector3 deltaVector = endTouchPosition - startTouchPosition;
 		swipeDirection = deltaVector.normalized;
 
-		// Here we are giving Y axis of input to both Y and Z with different coefficients to tweak the gameplay.
+		// Here we are giving Y axis of input to both Y and Z with different coefficients to tweak the gameplay. We divide swipe amount by screen resolution to have same force independent from the resolution.
 		Vector3 weightedDirection = new Vector3(
-			swipeDirection.x * Mathf.Abs(deltaVector.x) / Screen.currentResolution.width, 
-			swipeDirection.y * Mathf.Abs(deltaVector.y) * 1.1f / Screen.currentResolution.height, 
-			swipeDirection.y * Mathf.Abs(deltaVector.y) * 2f / Screen.currentResolution.height);
+			swipeDirection.x * Mathf.Abs(deltaVector.x) * gameConfig.ShootPowerCoefficients.x / Screen.width, 
+			swipeDirection.y * Mathf.Abs(deltaVector.y) * gameConfig.ShootPowerCoefficients.y / Screen.height, 
+			swipeDirection.y * Mathf.Abs(deltaVector.y) * gameConfig.ShootPowerCoefficients.z / Screen.height);
 
 		activeBall.Shoot(weightedDirection, gameConfig.ShootSpeed);
 	}

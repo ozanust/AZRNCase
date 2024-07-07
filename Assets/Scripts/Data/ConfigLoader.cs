@@ -17,7 +17,7 @@ public static class ConfigLoader
 
 		if (Application.platform == RuntimePlatform.Android)
 		{
-			ReadFile(path, callback);
+			ReadFileFromAndroid(path, callback);
 		}
 		else
 		{
@@ -34,7 +34,7 @@ public static class ConfigLoader
 		}
 	}
 
-	async static void ReadFile(string path, Action<GameConfig> callback)
+	async static void ReadFileFromAndroid(string path, Action<GameConfig> callback)
 	{
 		using (UnityWebRequest www = UnityWebRequest.Get(path))
 		{
