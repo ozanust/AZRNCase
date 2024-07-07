@@ -11,7 +11,7 @@ public class GoalTarget : MonoBehaviour
 
 	private void OnCollisionEnter(Collision collision)
 	{
-		if (collision.gameObject.tag == "Ball")
+		if (collision.gameObject.tag == Constants.BALL_TAG)
 		{
 			explosionEffect.gameObject.transform.SetParent(null);
 			explosionEffect.gameObject.transform.localScale = new Vector3(1, 1, 1);

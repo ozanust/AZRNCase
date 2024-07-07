@@ -26,7 +26,7 @@ public class GoalPlane : MonoBehaviour
 		Vector3 center = planeCollider.bounds.center;
 		Vector3 size = planeCollider.bounds.size;
 
-		// Calculate the corners of the BoxCollider
+		// Calculate the global corner positions of the BoxCollider
 		topLeft = center + new Vector3(-size.x, size.y, -size.z) * 0.5f;
 		topRight = center + new Vector3(size.x, size.y, -size.z) * 0.5f;
 		bottomLeft = center + new Vector3(-size.x, -size.y, -size.z) * 0.5f;

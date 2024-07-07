@@ -25,13 +25,13 @@ public class Ball : MonoBehaviour
 
 	private void Awake()
 	{
-		targetLayerIndex = LayerMask.NameToLayer("Target");
-		goalLayerIndex = LayerMask.NameToLayer("Goal");
+		targetLayerIndex = LayerMask.NameToLayer(Constants.TARGET_LAYER);
+		goalLayerIndex = LayerMask.NameToLayer(Constants.GOAL_LAYER);
 	}
 
 	private void OnCollisionEnter(Collision collision)
 	{
-		if (collision.gameObject.tag == "Target")
+		if (collision.gameObject.tag == Constants.TARGET_TAG)
 		{
 			onHitTarget.Invoke();
 
@@ -39,7 +39,7 @@ public class Ball : MonoBehaviour
 			Physics.IgnoreLayerCollision(gameObject.layer, targetLayerIndex, true);
 		}
 
-		if (collision.gameObject.tag == "Goal")
+		if (collision.gameObject.tag == Constants.GOAL_TAG)
 		{
 			onHitGoal.Invoke();
 
@@ -89,6 +89,6 @@ public class Ball : MonoBehaviour
 	{
 		gameObject.SetActive(true);
 		ballRigidbody.useGravity = false;
-		transform.DOScale(new Vector3(0.5f, 0.5f, 0.5f), 0.5f).SetEase(Ease.InOutQuad).onComplete += OnAppear;
+		transform.DOScale(new Vector3(0.5f, 0.5f, 0.5f), 0.5f).SetEase(Ease.OutBack).onComplete += OnAppear;
 	}
 }

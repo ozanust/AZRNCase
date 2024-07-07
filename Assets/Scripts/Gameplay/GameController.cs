@@ -20,10 +20,12 @@ public class GameController : MonoBehaviour
 
 	private int score;
 	private int health;
+
 	bool isShootStarted;
 	bool isShot;
 	bool isPlayerMove;
 	bool lastShotMade;
+
 	float shootingTimer;
 	float nextShootTimer;
 	float lastShootTimer;
@@ -37,6 +39,26 @@ public class GameController : MonoBehaviour
 
 	private GameConfig gameConfig;
 
+	// Here using property setters to overcome duplicate code and also prevent forgetting to update UI everywhere
+	private int Health { 
+		get { return health; } 
+		set 
+		{
+			health = value;
+			uiController.UpdateHealth(health);
+		} 
+	}
+
+	private int Score
+	{
+		get { return score; }
+		set
+		{
+			score = value;
+			uiController.UpdateScore(score);
+		}
+	}
+
 	private void Awake()
 	{
 		gameConfig = gameConfigSO.GameConfig;
@@ -45,14 +67,13 @@ public class GameController : MonoBehaviour
 	private void Start()
 	{
 		InitializeBallPool();
-		health = gameConfig.PlayerHealth;
+
+		Health = gameConfig.PlayerHealth;
+		Score = 0;
 
 		Ball tempBall = GetBall();
 		tempBall.transform.position = shootingPosition.position;
 		tempBall.Appear();
-
-		uiController.UpdateHealth(health);
-		uiController.UpdateScore(0);
 
 		CreateRandomTarget();
 	}
@@ -63,7 +84,7 @@ public class GameController : MonoBehaviour
 		{
 			Touch touch = Input.GetTouch(0);
 
-			if (health > 0 && isPlayerMove && touch.phase == TouchPhase.Began)
+			if (Health > 0 && isPlayerMove && touch.phase == TouchPhase.Began)
 			{
 				startTouchPosition = touch.position;
 				isShootStarted = true;
@@ -77,10 +98,9 @@ public class GameController : MonoBehaviour
 				{
 					ShootBall();
 					isShot = true;
-					health -= 1;
-					uiController.UpdateHealth(health);
+					Health -= 1;
 
-					if (health == 0)
+					if (Health == 0)
 					{
 						lastShotMade = true;
 					}
@@ -92,7 +112,7 @@ public class GameController : MonoBehaviour
 #if UNITY_EDITOR
 		Vector3 mousePosition = Input.mousePosition;
 
-		if (health > 0 && isPlayerMove && Input.GetMouseButtonDown(0)) // Check if mouse click began
+		if (Health > 0 && isPlayerMove && Input.GetMouseButtonDown(0)) // Check if mouse click began
 		{
 			startTouchPosition = mousePosition;
 			isShootStarted = true;
@@ -106,10 +126,9 @@ public class GameController : MonoBehaviour
 			{
 				ShootBall();
 				isShot = true;
-				health -= 1;
-				uiController.UpdateHealth(health);
+				Health -= 1;
 
-				if (health == 0)
+				if (Health == 0)
 				{
 					lastShotMade = true;
 				}
@@ -168,20 +187,19 @@ public class GameController : MonoBehaviour
 
 	private void OnBallHitTarget()
 	{
-		score += gameConfig.ExtraPointsPerTargetHit;
+		Score += gameConfig.ExtraPointsPerTargetHit;
 
 		// Increasing health as a reward
-		health += 1;
+		Health += 1;
+
+		// Taking it to false if this was last shot
 		lastShotMade = false;
 		lastShootTimer = 0;
-		uiController.UpdateHealth(health);
-		uiController.UpdateScore(score);
 	}
 
 	private void OnBallHitGoal()
 	{
-		score += gameConfig.PointsPerGoal;
-		uiController.UpdateScore(score);
+		Score += gameConfig.PointsPerGoal;
 	}
 
 	private void OnBallDisappear(Ball ball)
@@ -226,17 +244,25 @@ public class GameController : MonoBehaviour
 		shootingTimer = 0;
 		Vector3 deltaVector = endTouchPosition - startTouchPosition;
 		swipeDirection = deltaVector.normalized;
-		Vector3 weightedDirection = new Vector3(swipeDirection.x * Mathf.Abs(deltaVector.x) / Screen.currentResolution.width, swipeDirection.y * Mathf.Abs(deltaVector.y) * 1.1f / Screen.currentResolution.height, swipeDirection.y * Mathf.Abs(deltaVector.y) * 2f / Screen.currentResolution.height);
+
+		// Here we are giving Y axis of input to both Y and Z with different coefficients to tweak the gameplay.
+		Vector3 weightedDirection = new Vector3(
+			swipeDirection.x * Mathf.Abs(deltaVector.x) / Screen.currentResolution.width, 
+			swipeDirection.y * Mathf.Abs(deltaVector.y) * 1.1f / Screen.currentResolution.height, 
+			swipeDirection.y * Mathf.Abs(deltaVector.y) * 2f / Screen.currentResolution.height);
+
 		activeBall.Shoot(weightedDirection, gameConfig.ShootSpeed);
 	}
 
 	private void CreateRandomTarget()
 	{
+		// Calculating a random position inside the inner abstract rectangle to spawn target. Preventing the target to overlap with goal borders.
 		Vector3 randomTargetPosition = new Vector3(
 			Random.Range(goalPlane.TopLeft.x + goalTarget.Radius, goalPlane.TopRight.x - goalTarget.Radius),
 			Random.Range(goalPlane.TopLeft.y - goalTarget.Radius, goalPlane.BottomLeft.y + goalTarget.Radius),
 			goalPlane.TopRight.z);
 
+		// Using the same target if we haven't destroyed it on previous shoot
 		if (activeTarget != null)
 		{
 			activeTarget.gameObject.transform.DOMove(randomTargetPosition, 0.5f);

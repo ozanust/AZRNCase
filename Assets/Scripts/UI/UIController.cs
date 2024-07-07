@@ -35,8 +35,6 @@ public class UIController : MonoBehaviour
 		Canvas canvas = gameOverPanel.GetComponentInParent<Canvas>();
 		RectTransform canvasRect = canvas.GetComponent<RectTransform>();
 		Vector2 canvasCenter = new Vector2(canvasRect.rect.width * canvas.scaleFactor / 2, canvasRect.rect.height * canvas.scaleFactor / 2);
-		Debug.Log(canvasCenter);
-		Debug.Log(canvas.scaleFactor);
 
 		gameOverPanel.DOMove(canvasCenter, 0.5f).SetEase(Ease.InOutQuad);
 	}
