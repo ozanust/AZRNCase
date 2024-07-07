@@ -71,12 +71,6 @@ public class GameController : MonoBehaviour
 		CreateRandomTarget();
 	}
 
-	private void Update()
-	{
-		HandleNextShootTimer();
-		HandleLastShotTimer();
-	}
-
 	private void InitializeBallPool()
 	{
 		// Adding 1 as a buffer
@@ -89,6 +83,12 @@ public class GameController : MonoBehaviour
 	}
 
 	#endregion
+
+	private void Update()
+	{
+		HandleNextShootTimer();
+		HandleLastShotTimer();
+	}
 
 	#region EventListeners
 
