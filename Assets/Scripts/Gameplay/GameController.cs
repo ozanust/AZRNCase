@@ -1,7 +1,6 @@
-using System.Collections;
+using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 
 public class GameController : MonoBehaviour
 {
@@ -21,21 +20,15 @@ public class GameController : MonoBehaviour
 	private int score;
 	private int health;
 
-	bool isShootStarted;
 	bool isShot;
 	bool isPlayerMove;
 	bool lastShotMade;
 
-	float shootingTimer;
 	float nextShootTimer;
 	float lastShootTimer;
 
 	Ball activeBall;
 	GoalTarget activeTarget;
-
-	private Vector2 startTouchPosition;
-	private Vector2 endTouchPosition;
-	private Vector2 swipeDirection;
 
 	private GameConfig gameConfig;
 
@@ -59,130 +52,29 @@ public class GameController : MonoBehaviour
 		}
 	}
 
+	#region Initializers
+
 	private void Awake()
 	{
 		gameConfig = gameConfigSO.GameConfig;
-	}
-
-	private void Start()
-	{
-		InitializeBallPool();
 
 		Health = gameConfig.PlayerHealth;
 		Score = 0;
 
-		Ball tempBall = GetBall();
-		tempBall.transform.position = shootingPosition.position;
-		tempBall.Appear();
+		InitializeBallPool();
+		InputHandler.OnSwipe += OnSwipe;
+	}
 
+	private void Start()
+	{
+		PrepareNewBall();
 		CreateRandomTarget();
 	}
 
-	void Update()
+	private void Update()
 	{
-		if (Input.touchCount > 0)
-		{
-			Touch touch = Input.GetTouch(0);
-
-			if (Health > 0 && isPlayerMove && touch.phase == TouchPhase.Began)
-			{
-				startTouchPosition = touch.position;
-				isShootStarted = true;
-				isPlayerMove = false;
-			}
-
-			if (isShootStarted && touch.phase == TouchPhase.Ended)
-			{
-				endTouchPosition = touch.position;
-				if ((endTouchPosition - startTouchPosition).magnitude > 200)
-				{
-					ShootBall();
-					isShot = true;
-					Health -= 1;
-
-					if (Health == 0)
-					{
-						lastShotMade = true;
-					}
-				}
-				else
-				{
-					shootingTimer = 0;
-					isPlayerMove = true;
-				}
-				isShootStarted = false;
-			}
-		}
-
-#if UNITY_EDITOR
-		Vector3 mousePosition = Input.mousePosition;
-
-		if (Health > 0 && isPlayerMove && Input.GetMouseButtonDown(0)) // Check if mouse click began
-		{
-			startTouchPosition = mousePosition;
-			isShootStarted = true;
-			isPlayerMove = false;
-		}
-
-		if (isShootStarted && Input.GetMouseButtonUp(0)) // Check if mouse click ended
-		{
-			endTouchPosition = mousePosition;
-			if ((endTouchPosition - startTouchPosition).magnitude > 200)
-			{
-				ShootBall();
-				isShot = true;
-				Health -= 1;
-
-				if (Health == 0)
-				{
-					lastShotMade = true;
-				}
-			}
-			else
-			{
-				shootingTimer = 0;
-				isPlayerMove = true;
-			}
-
-			isShootStarted = false;
-		}
-#endif
-
-		if (isShootStarted)
-		{
-			shootingTimer += Time.deltaTime;
-			if (shootingTimer >= gameConfig.ShootingTime)
-			{
-				isShootStarted = false;
-				isPlayerMove = true;
-				shootingTimer = 0;
-			}
-		}
-
-		if (isShot)
-		{
-			nextShootTimer += Time.deltaTime;
-			if (nextShootTimer > secondsBetweenShoots)
-			{
-				Ball tempBall = GetBall();
-				tempBall.gameObject.transform.position = shootingPosition.position;
-				tempBall.Appear();
-				CreateRandomTarget();
-				nextShootTimer = 0;
-				isShot = false;
-			}
-		}
-
-		if (lastShotMade)
-		{
-			lastShootTimer += Time.deltaTime;
-			if (lastShootTimer > secondsBetweenShoots)
-			{
-				uiController.ShowGameOverScreen();
-				lastShootTimer = 0;
-				lastShotMade = false;
-			}
-		}
+		HandleNextShootTimer();
+		HandleLastShotTimer();
 	}
 
 	private void InitializeBallPool()
@@ -193,6 +85,37 @@ public class GameController : MonoBehaviour
 		for (int i = 0; i < ballsToInstantiate; i++)
 		{
 			CreateNewBall();
+		}
+	}
+
+	#endregion
+
+	#region EventListeners
+
+	/// <summary>
+	/// Taking action when we get a swipe event from user
+	/// </summary>
+	/// <param name="swipeVector"></param>
+	private void OnSwipe(Vector2 swipeVector)
+	{
+		if (Health > 0 && isPlayerMove)
+		{
+			if (IsEligibleToShoot(swipeVector))
+			{
+				ShootBall(swipeVector);
+				isShot = true;
+				Health--;
+				isPlayerMove = false;
+
+				if (Health == 0)
+				{
+					lastShotMade = true;
+				}
+			}
+			else
+			{
+				isPlayerMove = true;
+			}
 		}
 	}
 
@@ -224,6 +147,9 @@ public class GameController : MonoBehaviour
 		activeBall = ball;
 	}
 
+	#endregion
+
+	#region GameplayMechanics
 	private Ball GetBall()
 	{
 		for (int i = 0; i < ballPool.Count; i++)
@@ -250,17 +176,15 @@ public class GameController : MonoBehaviour
 		return tempBall;
 	}
 
-	private void ShootBall()
+	private void ShootBall(Vector2 swipeVector)
 	{
-		shootingTimer = 0;
-		Vector3 deltaVector = endTouchPosition - startTouchPosition;
-		swipeDirection = deltaVector.normalized;
+		Vector2 swipeDirection = swipeVector.normalized;
 
 		// Here we are giving Y axis of input to both Y and Z with different coefficients to tweak the gameplay. We divide swipe amount by screen resolution to have same force independent from the resolution.
 		Vector3 weightedDirection = new Vector3(
-			swipeDirection.x * Mathf.Abs(deltaVector.x) * gameConfig.ShootPowerCoefficients.x / Screen.width, 
-			swipeDirection.y * Mathf.Abs(deltaVector.y) * gameConfig.ShootPowerCoefficients.y / Screen.height, 
-			swipeDirection.y * Mathf.Abs(deltaVector.y) * gameConfig.ShootPowerCoefficients.z / Screen.height);
+			swipeDirection.x * Mathf.Abs(swipeVector.x) * gameConfig.ShootPowerCoefficients.x / Screen.width, 
+			swipeDirection.y * Mathf.Abs(swipeVector.y) * gameConfig.ShootPowerCoefficients.y / Screen.height, 
+			swipeDirection.y * Mathf.Abs(swipeVector.y) * gameConfig.ShootPowerCoefficients.z / Screen.height);
 
 		activeBall.Shoot(weightedDirection, gameConfig.ShootSpeed);
 	}
@@ -282,4 +206,70 @@ public class GameController : MonoBehaviour
 
 		activeTarget = Instantiate(goalTarget, randomTargetPosition, goalTarget.transform.rotation);
 	}
+
+	private void PrepareNewBall()
+	{
+		Ball tempBall = GetBall();
+		tempBall.transform.position = shootingPosition.position;
+		tempBall.Appear();
+	}
+
+	/// <summary>
+	/// Check if user input provides suitable information to make a proper shoot
+	/// </summary>
+	/// <param name="swipeVector">Swipe distance vector</param>
+	/// <returns></returns>
+	private bool IsEligibleToShoot(Vector2 swipeVector)
+	{
+		return swipeVector.magnitude > 200 && swipeVector.y > 0;
+	}
+
+	#endregion
+
+	#region TimingHandlers
+
+	private void HandleNextShootTimer()
+	{
+		if (!isShot)
+		{
+			return;
+		}
+
+		nextShootTimer += Time.deltaTime;
+		if (nextShootTimer > secondsBetweenShoots)
+		{
+			PrepareNewBall();
+			CreateRandomTarget();
+			ResetShootTimer();
+		}
+	}
+
+	private void HandleLastShotTimer()
+	{
+		if (!lastShotMade)
+		{
+			return;
+		}
+
+		lastShootTimer += Time.deltaTime;
+		if (lastShootTimer > secondsBetweenShoots)
+		{
+			uiController.ShowGameOverScreen();
+			ResetLastShotTimer();
+		}
+	}
+
+	private void ResetShootTimer()
+	{
+		nextShootTimer = 0;
+		isShot = false;
+	}
+
+	private void ResetLastShotTimer()
+	{
+		lastShootTimer = 0;
+		lastShotMade = false;
+	}
+
+	#endregion
 }
